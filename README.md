@@ -24,4 +24,4 @@ Framework preset: `None`. Build command: vazio. Build output directory: `public`
 
 Nome: Marlon Oliveira Passos 
 RA: 2026108959
-URL: https://
+URL: https://2bim-avalia1-5kf.pages.dev
