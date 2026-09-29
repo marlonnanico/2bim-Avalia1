@@ -4,21 +4,21 @@
   <meta charset="UTF-8">
   <title>Desenho Assinado</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Script do Google Identity -->
+  <!-- Script Oficial do Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <main>
     <h1>Desenho Assinado</h1>
 
-    <!-- Botão do Google -->
+    <!-- Botão do Google com o teu Client ID já inserido -->
     <div id="g_id_onload"
          data-client_id="678603567321-qucbvb0fqs333vu9a5q87hrcrde0t8m0.apps.googleusercontent.com"
          data-callback="handleCredentialResponse">
     </div>
     <div class="g_id_signin" data-type="standard"></div>
 
-    <!-- Formulário APENAS com o campo do número -->
+    <!-- Formulário apenas com o campo de número -->
     <form id="form-desenho">
       <label for="numero">Número (1 a 100):</label>
       <input type="number" id="numero" min="1" max="100" required>
