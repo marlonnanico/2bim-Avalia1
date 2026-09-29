@@ -1,6 +1,6 @@
 let googleToken = null;
 
-// Chamada automaticamente quando o utilizador faz login no Google
+// Função executada automaticamente assim que o utilizador faz login no Google
 function handleCredentialResponse(response) {
   googleToken = response.credential;
   document.getElementById("mensagem-erro").textContent = "";
@@ -37,7 +37,8 @@ document.getElementById("form-desenho").addEventListener("submit", async (event)
     }
 
     if (response.status === 401) {
-      erroDiv.textContent = "Erro 401: Token inválido ou não autorizado.";
+      const textoErro = await response.text();
+      erroDiv.textContent = `Erro 401: ${textoErro}`;
       return;
     }
 
