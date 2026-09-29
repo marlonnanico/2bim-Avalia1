@@ -3,7 +3,7 @@ import { gerarDesenho } from "../../lib/desenho.js";
 export async function onRequest(context) {
   const { request, env } = context;
 
-  // 1. Método deve ser POST (405)
+  // 1. Validação do Método HTTP (405)
   if (request.method !== "POST") {
     return new Response("Método Não Permitido", { status: 405 });
   }
@@ -35,19 +35,29 @@ export async function onRequest(context) {
 
   const idToken = authHeader.split(" ")[1];
 
-  // Validação no Google
+  // Validação do Token no servidor do Google
   const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
   if (!googleRes.ok) {
-    return new Response("Token inválido no Google", { status: 401 });
+    return new Response("Token recusado pelo Google (expirado ou inválido)", { status: 401 });
   }
 
   const tokenData = await googleRes.json();
 
-  if (tokenData.aud !== env.GOOGLE_CLIENT_ID || tokenData.email_verified !== "true") {
-    return new Response("Token não autorizado", { status: 401 });
+  // Verificação da variável no Cloudflare Pages
+  if (!env.GOOGLE_CLIENT_ID) {
+    return new Response("Erro de configuração: Variável GOOGLE_CLIENT_ID ausente no Cloudflare", { status: 401 });
   }
 
-  // 4. Sucesso (200) - Gera o SVG com a assinatura do e-mail do Google
+  // Validação do aud e e-mail
+  if (tokenData.aud !== env.GOOGLE_CLIENT_ID) {
+    return new Response("Client ID não corresponde ao token", { status: 401 });
+  }
+
+  if (tokenData.email_verified !== "true") {
+    return new Response("E-mail não verificado", { status: 401 });
+  }
+
+  // 4. Sucesso (200) - Gera o SVG assinado
   const emailAssinatura = tokenData.email;
   const svgTexto = gerarDesenho(numero, emailAssinatura);
 
