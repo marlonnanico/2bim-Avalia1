@@ -1,46 +1,55 @@
-// script.js
-// Versao inicial: todo o trabalho acontece no navegador.
-// A tarefa consiste em levar gerarDesenho para o servidor (Pages Functions)
-// e fazer esta pagina apenas enviar o numero e exibir a resposta.
+let googleToken = null;
 
-import { gerarDesenho, numeroValido } from "./desenho.js";
+// Chamada automaticamente quando o utilizador faz login no Google
+function handleCredentialResponse(response) {
+  googleToken = response.credential;
+  document.getElementById("mensagem-erro").textContent = "";
+}
 
-const formulario = document.getElementById("formulario");
-const campoNumero = document.getElementById("numero");
-const campoEmail = document.getElementById("email");
-const area = document.getElementById("desenho");
-const mensagem = document.getElementById("mensagem");
-const botaoBaixar = document.getElementById("baixar");
+document.getElementById("form-desenho").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const erroDiv = document.getElementById("mensagem-erro");
+  const containerSvg = document.getElementById("container-svg");
 
-let svgAtual = "";
+  erroDiv.textContent = "";
+  containerSvg.innerHTML = "";
 
-formulario.addEventListener("submit", (evento) => {
-  evento.preventDefault();
-  mensagem.textContent = "";
-
-  const numero = Number(campoNumero.value);
-  const email = campoEmail.value.trim();
-
-  if (!numeroValido(numero)) {
-    mensagem.textContent = "Digite um inteiro entre 1 e 100.";
-    return;
-  }
-  if (email === "") {
-    mensagem.textContent = "Informe um e-mail.";
+  if (!googleToken) {
+    erroDiv.textContent = "Por favor, faça login com o Google primeiro.";
     return;
   }
 
-  svgAtual = gerarDesenho(numero, email);
-  area.innerHTML = svgAtual;
-  botaoBaixar.hidden = false;
-});
+  const numero = parseInt(document.getElementById("numero").value, 10);
 
-botaoBaixar.addEventListener("click", () => {
-  const arquivo = new Blob([svgAtual], { type: "image/svg+xml" });
-  const url = URL.createObjectURL(arquivo);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "exemplo.svg";
-  link.click();
-  URL.revokeObjectURL(url);
+  try {
+    const response = await fetch("/api/desenho", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${googleToken}`
+      },
+      body: JSON.stringify({ numero })
+    });
+
+    if (response.status === 400) {
+      erroDiv.textContent = "Erro 400: Dados do formulário inválidos.";
+      return;
+    }
+
+    if (response.status === 401) {
+      erroDiv.textContent = "Erro 401: Token inválido ou não autorizado.";
+      return;
+    }
+
+    if (!response.ok) {
+      erroDiv.textContent = `Erro inesperado: HTTP ${response.status}`;
+      return;
+    }
+
+    const svgTexto = await response.text();
+    containerSvg.innerHTML = svgTexto;
+
+  } catch (err) {
+    erroDiv.textContent = "Erro na comunicação com o servidor.";
+  }
 });
