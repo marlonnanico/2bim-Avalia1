@@ -2,34 +2,33 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Desenho Assinado</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Script do Google Identity -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <main>
-    <header>
-      <h1>Desenho Assinado</h1>
-      <p>Escolha um número entre 1 e 100. Cada número gera uma figura diferente, assinada com o seu e-mail.</p>
-    </header>
+    <h1>Desenho Assinado</h1>
 
-    <form id="formulario" novalidate>
-      <label for="numero">Número</label>
-      <input id="numero" name="numero" type="number" min="1" max="100" step="1" required placeholder="42">
+    <!-- Botão do Google -->
+    <div id="g_id_onload"
+         data-client_id="SEU_CLIENT_ID_DO_GOOGLE_AQUI"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
 
-      <label for="email">E-mail</label>
-      <input id="email" name="email" type="email" required placeholder="voce@gmail.com">
-
-      <button type="submit">Desenhar</button>
+    <!-- Formulário APENAS com o campo do número -->
+    <form id="form-desenho">
+      <label for="numero">Número (1 a 100):</label>
+      <input type="number" id="numero" min="1" max="100" required>
+      <button type="submit">Gerar Desenho</button>
     </form>
 
-    <p id="mensagem" role="alert"></p>
-
-    <figure id="desenho" aria-live="polite"></figure>
-
-    <button id="baixar" type="button" hidden>Baixar SVG</button>
+    <div id="mensagem-erro" style="color: red; margin-top: 10px;"></div>
+    <div id="container-svg" style="margin-top: 20px;"></div>
   </main>
 
-  <script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
